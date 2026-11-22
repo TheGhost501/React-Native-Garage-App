@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "GarageBook",
+    "slug": "garagebook",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.garagebook.app"
+    },
+    "android": {
+      "package": "com.garagebook.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "softwareKeyboardLayoutMode": "resize"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-secure-store",
+      "@react-native-community/datetimepicker",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "GarageBook needs access to your photos to attach vehicle and receipt images.",
+          "cameraPermission": "GarageBook needs camera access to take photos of your vehicles and receipts."
+        }
+      ],
+      "expo-font"
+    ]
+  }
+}
