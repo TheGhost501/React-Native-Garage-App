@@ -17,6 +17,7 @@ Built with **React Native (Expo)**, **React Navigation** and **Firebase** (Authe
 | Backend | Firebase Authentication (email/password), Cloud Firestore |
 | Session storage | Firebase Auth persistence backed by `expo-secure-store` |
 | Native features | `expo-image-picker` (camera + gallery) |
+| Forms | React Hook Form |
 | Inputs | `@react-native-community/datetimepicker`, `@react-native-community/slider`, `@react-native-picker/picker`, `Switch` |
 
 ## Getting Started
@@ -79,9 +80,10 @@ npx eas-cli@latest build -p android --profile preview
 ```
 src/
 ├── App.js                 # Providers (safe area, auth) + root navigator
-├── components/            # Reusable UI components
+├── components/            # Reusable UI: AppButton, FormField, FormScreen, CenteredMessage
 ├── config/firebase.js     # Firebase app, Auth (secure persistence), Firestore
 ├── contexts/AuthContext.js
+├── hooks/                 # useThemeColors
 ├── navigation/            # RootNavigator, AuthStack, AppTabs, GarageStack
 ├── screens/
 │   ├── auth/              # Login, Register
@@ -249,7 +251,9 @@ Because the app screens are not registered at all while logged out, they cannot 
   - **Next due date** (when a reminder is on): required + must be after the service date.
 - **Cost:** optional; if filled, a number ≥ 0 with at most 2 decimals.
 
-Errors appear under each field, and the submit button stays disabled until the form is valid.
+Errors appear under each field once it has been touched, and for every invalid field when the form is submitted. The submit button shows a loading spinner while saving and ignores extra taps.
+
+All forms keep the focused field above the on-screen keyboard (also in landscape on tablets) and stay clear of the system navigation bar. Tapping a button closes the keyboard.
 
 ## 9. Native Device Features
 
