@@ -1,15 +1,24 @@
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
-import { colors } from '../theme/colors';
+import { useThemeColors } from '../hooks/useThemeColors';
+import AppButton from './AppButton';
 
 // Full-screen loading spinner or message (splash while restoring the session,
-// configuration errors, later also empty/error states).
-export default function CenteredMessage({ loading = false, title, message }) {
+// configuration errors, empty/error states). Pass actionLabel + onAction to
+// show a button, e.g. "Retry" or "Add your first vehicle".
+export default function CenteredMessage({ loading = false, title, message, actionLabel, onAction }) {
+  const c = useThemeColors();
+
   return (
-    <View style={styles.container}>
-      {loading && <ActivityIndicator size="large" color={colors.primary} />}
-      {title && <Text style={styles.title}>{title}</Text>}
-      {message && <Text style={styles.message}>{message}</Text>}
+    <View style={[styles.container, { backgroundColor: c.background }]}>
+      {loading && <ActivityIndicator size="large" color={c.primary} />}
+      {title && <Text style={[styles.title, { color: c.text }]}>{title}</Text>}
+      {message && <Text style={[styles.message, { color: c.textMuted }]}>{message}</Text>}
+      {actionLabel && onAction && (
+        <View style={styles.action}>
+          <AppButton title={actionLabel} onPress={onAction} />
+        </View>
+      )}
     </View>
   );
 }
@@ -21,8 +30,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 24,
     gap: 12,
-    backgroundColor: colors.background,
   },
-  title: { fontSize: 20, fontWeight: '700', color: colors.text, textAlign: 'center' },
-  message: { fontSize: 15, color: colors.textMuted, textAlign: 'center' },
+  title: { fontSize: 20, fontWeight: '700', textAlign: 'center' },
+  message: { fontSize: 15, textAlign: 'center' },
+  action: { alignSelf: 'stretch', marginTop: 8 },
 });
