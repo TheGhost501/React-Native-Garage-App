@@ -1,4 +1,4 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
+import { ActivityIndicator, Keyboard, Pressable, StyleSheet, Text } from 'react-native';
 
 import { useThemeColors } from '../hooks/useThemeColors';
 
@@ -20,9 +20,16 @@ export default function AppButton({
     secondary: { bg: c.surface, fg: c.primary, border: c.border },
   }[variant] ?? { bg: c.primary, fg: '#FFFFFF', border: c.primary };
 
+  // FormScreen uses keyboardShouldPersistTaps="handled", so the tap reaches
+  // the button but the keyboard stays open. Close it here for every button.
+  const handlePress = (event) => {
+    Keyboard.dismiss();
+    onPress?.(event);
+  };
+
   return (
     <Pressable
-      onPress={onPress}
+      onPress={handlePress}
       disabled={isDisabled}
       accessibilityRole="button"
       accessibilityState={{ disabled: isDisabled, busy: loading }}

@@ -1,5 +1,5 @@
 import { useHeaderHeight } from '@react-navigation/elements';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useThemeColors } from '../hooks/useThemeColors';
@@ -15,9 +15,11 @@ export default function FormScreen({ children, contentContainerStyle }) {
   return (
     <KeyboardAvoidingView
       style={[styles.flex, { backgroundColor: c.background }]}
-      // iOS doesn't resize the window for the keyboard, so pad the content.
-      // Android resizes it itself (app.json: softwareKeyboardLayoutMode "resize").
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      // 'padding' on both platforms: with Android edge-to-edge (forced since
+      // SDK 54) and in Expo Go, "resize" doesn't shrink the window, so we pad
+      // ourselves. If the window does resize, the overlap is 0 and no padding
+      // is added, so there's no double gap.
+      behavior="padding"
       keyboardVerticalOffset={headerHeight}
     >
       <ScrollView
