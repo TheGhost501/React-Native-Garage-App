@@ -90,7 +90,8 @@ src/
 │   ├── garage/            # VehicleList, VehicleDetails, RecordDetails, VehicleForm, RecordForm
 │   └── main/              # Upcoming, Profile
 ├── services/              # Firestore data access, secure storage adapter
-└── theme/                 # Colors
+├── theme/                 # Colors
+└── utils/                 # Validation rules, auth error messages
 ```
 
 ---
@@ -240,7 +241,8 @@ Because the app screens are not registered at all while logged out, they cannot 
 
 ### Validation Rules
 
-- **Email:** required; valid email format.
+- **Email:** required; at least 6 characters; valid email format.
+- **Login password:** required only (Firebase checks whether it is correct).
 - **Vehicle make / model:** required; 2–30 characters.
 - **Year:** required; whole number; between 1950 and next year.
 - **Plate number:** required; 4–10 characters; only letters, digits, spaces and dashes.
@@ -271,7 +273,7 @@ All forms keep the focused field above the on-screen keyboard (also in landscape
 
 ## 10. Typical User Flow
 
-1. The user opens GarageBook for the first time, taps **Create account**, and registers with email and password. They land on the empty **Garage** tab.
+1. The user opens GarageBook for the first time, taps **No account? Register**, and creates an account with email and password. They land on the empty **Garage** tab.
 2. They tap **Add vehicle**, fill in make, model, year, plate, fuel type and current mileage, take a photo of the car, and save. The car appears in the list with status **OK**.
 3. They open the car and tap **Add service record** ("Oil change"), set the date and mileage, enter the cost, photograph the receipt, turn on **Set reminder** and choose a 15,000 km interval with the slider. The vehicle now shows its next service.
 4. Over time the user updates the mileage or logs repairs. When a service gets close, the car is marked **Due soon** (and later **Overdue**) on the Garage and **Upcoming** tabs. The user can edit or delete wrong records at any time.
