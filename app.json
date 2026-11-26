@@ -30,10 +30,16 @@
         "expo-image-picker",
         {
           "photosPermission": "GarageBook needs access to your photos to attach vehicle and receipt images.",
-          "cameraPermission": "GarageBook needs camera access to take photos of your vehicles and receipts."
+          "cameraPermission": "GarageBook needs camera access to take photos of your vehicles and receipts.",
+          "microphonePermission": false
         }
       ],
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "34aad73d-c12a-42af-b9c1-b2c8f048a9ac"
+      }
+    }
   }
 }
