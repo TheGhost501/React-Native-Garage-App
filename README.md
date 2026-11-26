@@ -4,7 +4,7 @@ A mobile app for tracking the status of your cars: maintenance, repairs, mileage
 
 Built with **React Native (Expo)**, **React Navigation** and **Firebase** (Authentication + Cloud Firestore).
 
-> 📦 **Android APK:** _link will be added after the first EAS build_
+> 📦 **Android APK:** [_link will be added after the first EAS build_](https://expo.dev/accounts/ilyas_shepard/projects/garagebook/builds/796fc9c3-303a-44f1-9faa-ae6843f42777)
 
 ---
 
