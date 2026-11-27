@@ -4,7 +4,7 @@ A mobile app for tracking the status of your cars: maintenance, repairs, mileage
 
 Built with **React Native (Expo)**, **React Navigation** and **Firebase** (Authentication + Cloud Firestore).
 
-> 📦 **Android APK:** [_link will be added after the first EAS build_](https://expo.dev/accounts/ilyas_shepard/projects/garagebook/builds/796fc9c3-303a-44f1-9faa-ae6843f42777)
+> 📦 **Android APK:** [Download from the EAS build page](https://expo.dev/accounts/ilyas_shepard/projects/garagebook/builds/796fc9c3-303a-44f1-9faa-ae6843f42777)
 
 ---
 
@@ -71,7 +71,11 @@ After changing `.env`, restart with a cleared cache: `npx expo start -c`.
 
 ### 4. Build the APK
 
+The `preview` profile in `eas.json` builds an installable APK on EAS (an [expo.dev](https://expo.dev) account is needed). `.env` is git-ignored, so EAS never receives it: add the 6 `EXPO_PUBLIC_FIREBASE_*` values as EAS environment variables for the `preview` environment first, or the APK shows "Firebase is not configured".
+
 ```bash
+npx eas-cli@latest login
+npx eas-cli@latest env:push --environment preview --path .env
 npx eas-cli@latest build -p android --profile preview
 ```
 
@@ -91,7 +95,7 @@ src/
 │   └── main/              # Upcoming, Profile
 ├── services/              # Firestore data access, secure storage adapter
 ├── theme/                 # Colors
-└── utils/                 # Validation rules, auth error messages
+└── utils/                 # Validation rules, auth error messages, constants (fuel types)
 ```
 
 ---
@@ -197,7 +201,7 @@ Because the app screens are not registered at all while logged out, they cannot 
   ```
   users/{uid}/vehicles/{vehicleId}
       make, model, year, plate, fuelType, photoUrl, currentMileage,
-      nextServiceDate, nextServiceMileage, createdAt, updatedAt
+      nextServiceDate, nextServiceMileage, nextServiceRecordId, createdAt, updatedAt
   users/{uid}/vehicles/{vehicleId}/records/{recordId}
       type, category, title, date, mileage, cost, notes, receiptPhotoUrl,
       setsReminder, nextDueDate, nextDueMileage, createdAt
@@ -246,6 +250,7 @@ Because the app screens are not registered at all while logged out, they cannot 
 - **Vehicle make / model:** required; 2–30 characters.
 - **Year:** required; whole number; between 1950 and next year.
 - **Plate number:** required; 4–10 characters; only letters, digits, spaces and dashes.
+- **Vehicle current mileage:** required; whole number; 0–2,000,000 km.
 - **Field with multiple validation rules:**
   - **Password:** required + at least 6 characters + must contain at least one digit.
   - **Confirm password:** required + must match the password.
