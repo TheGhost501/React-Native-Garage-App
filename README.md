@@ -84,7 +84,7 @@ npx eas-cli@latest build -p android --profile preview
 ```
 src/
 ├── App.js                 # Providers (safe area, auth) + root navigator
-├── components/            # Reusable UI: AppButton, FormField, FormScreen, CenteredMessage
+├── components/            # Reusable UI: AppButton, FormField, FormScreen, CenteredMessage, VehicleCard
 ├── config/firebase.js     # Firebase app, Auth (secure persistence), Firestore
 ├── contexts/AuthContext.js
 ├── hooks/                 # useThemeColors
@@ -287,5 +287,5 @@ All forms keep the focused field above the on-screen keyboard (also in landscape
 ## 11. Error & Edge Case Handling
 
 - **Authentication errors:** Firebase error codes are mapped to clear messages shown on the form, for example "Wrong email or password" (`auth/invalid-credential`), "This email is already registered" (`auth/email-already-in-use`), "Too many attempts, try again later" (`auth/too-many-requests`) and "No internet connection" (`auth/network-request-failed`). The submit button shows a loading state while the request runs.
-- **Network or data errors:** Every screen that loads data has **loading**, **error** and **success** states. If loading fails, an error message with a **Retry** button is shown. Failed saves or deletes show an alert and keep the form data so nothing is lost. If a vehicle or record no longer exists (e.g. deleted on another device), the details screen shows "Not found" and a button to go back. If the app starts without a Firebase configuration, it shows a setup message instead of crashing.
+- **Network or data errors:** Every screen that loads data has **loading**, **error** and **success** states. If loading fails, an error message with a **Retry** button is shown. If a pull-to-refresh fails while data is already on screen, the list stays visible and a short "Couldn't refresh" line appears above it. Failed saves or deletes show an alert and keep the form data so nothing is lost. If a vehicle or record no longer exists (e.g. deleted on another device), the details screen shows "Not found" and a button to go back. If the app starts without a Firebase configuration, it shows a setup message instead of crashing.
 - **Empty or missing data states:** An empty garage shows "No vehicles yet" with an **Add your first vehicle** button. A vehicle without records shows "No service history yet". The Upcoming tab shows "All caught up 🎉" when nothing is due. Missing optional data (no photo, no cost, no reminder) is shown with placeholders such as a default car icon or "Not set".
