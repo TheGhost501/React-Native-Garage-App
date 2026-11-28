@@ -1,13 +1,15 @@
 import { Picker } from '@react-native-picker/picker';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import AppButton from '../../components/AppButton';
+import CenteredMessage from '../../components/CenteredMessage';
 import FormField from '../../components/FormField';
 import FormScreen from '../../components/FormScreen';
 import { useAuth } from '../../contexts/AuthContext';
 import { useThemeColors } from '../../hooks/useThemeColors';
-import { createVehicle } from '../../services/vehicleService';
+import { createVehicle, getVehicle, updateVehicle } from '../../services/vehicleService';
 import { FUEL_TYPES } from '../../utils/constants';
 import {
   makeRules,
@@ -17,15 +19,23 @@ import {
   yearRules,
 } from '../../utils/validators';
 
-// Add mode for now (no params). Phase 6 adds edit mode via route.params.vehicleId.
-export default function VehicleFormScreen({ navigation }) {
+// No params → add mode. route.params.vehicleId → edit mode (pre-filled, saves with updateVehicle).
+export default function VehicleFormScreen({ navigation, route }) {
   const { user } = useAuth();
   const c = useThemeColors();
+
+  const vehicleId = route.params?.vehicleId;
+  const isEdit = Boolean(vehicleId);
+
+  // Starts true in edit mode, so the empty form never flashes before the data arrives.
+  const [loadingVehicle, setLoadingVehicle] = useState(isEdit);
+  const [loadFailed, setLoadFailed] = useState(null); // 'notFound' | 'error' | null
 
   const {
     control,
     handleSubmit,
     setFocus,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm({
     // Everything is a string while editing (TextInput gives strings).
@@ -41,24 +51,89 @@ export default function VehicleFormScreen({ navigation }) {
     mode: 'onTouched',
   });
 
+  // Edit mode: load once. useEffect, not useFocusEffect: a refocus must not
+  // wipe what the user has typed. defaultValues are only read on the first
+  // render (before the data arrives), so the loaded values go in with reset().
+  useEffect(() => {
+    if (!isEdit) return;
+    let active = true; // ignore a late answer if the user already left the screen
+
+    const loadVehicle = async () => {
+      try {
+        const v = await getVehicle(user.uid, vehicleId);
+        if (!active) return;
+        if (!v) {
+          setLoadFailed('notFound');
+          return;
+        }
+        // Inputs need strings. Guards: a document edited by hand in the console
+        // may miss a field or hold a fuel type the Picker doesn't have.
+        reset({
+          make: v.make ?? '',
+          model: v.model ?? '',
+          year: String(v.year ?? ''),
+          plate: v.plate ?? '',
+          currentMileage: String(v.currentMileage ?? ''),
+          fuelType: FUEL_TYPES.includes(v.fuelType) ? v.fuelType : FUEL_TYPES[0],
+        });
+      } catch (e) {
+        if (active) setLoadFailed('error');
+      } finally {
+        if (active) setLoadingVehicle(false);
+      }
+    };
+
+    loadVehicle();
+    return () => {
+      active = false;
+    };
+  }, [isEdit, vehicleId, user.uid, reset]);
+
   // Convert here, not in the form: Firestore must get numbers, or sorting and
   // comparisons break. `await` keeps isSubmitting true → spinner + no double tap.
+  // Both modes send exactly these six fields, never the loaded object, so id,
+  // createdAt, photoUrl and the nextService* fields are never written back.
   const onSubmit = async (values) => {
+    const data = {
+      make: values.make.trim(),
+      model: values.model.trim(),
+      year: Number(values.year),
+      plate: values.plate.trim().toUpperCase(),
+      currentMileage: Number(values.currentMileage),
+      fuelType: values.fuelType,
+    };
+
     try {
-      await createVehicle(user.uid, {
-        make: values.make.trim(),
-        model: values.model.trim(),
-        year: Number(values.year),
-        plate: values.plate.trim().toUpperCase(),
-        currentMileage: Number(values.currentMileage),
-        fuelType: values.fuelType,
-      });
+      if (isEdit) {
+        await updateVehicle(user.uid, vehicleId, data);
+      } else {
+        await createVehicle(user.uid, data);
+      }
       navigation.goBack(); // pop the form so Back can't return to it
     } catch (e) {
       // Stay on the form so the user's input isn't lost.
       Alert.alert('Could not save', e.message);
     }
   };
+
+  if (loadingVehicle) {
+    return <CenteredMessage loading />;
+  }
+
+  if (loadFailed) {
+    return (
+      <CenteredMessage
+        title={loadFailed === 'notFound' ? 'Vehicle not found' : "Couldn't load this vehicle"}
+        message={
+          loadFailed === 'notFound'
+            ? 'It may have been deleted.'
+            : 'Check your internet connection and try again.'
+        }
+        actionLabel="Go back"
+        onAction={() => navigation.goBack()}
+      />
+    );
+  }
 
   return (
     <FormScreen>
@@ -186,7 +261,11 @@ export default function VehicleFormScreen({ navigation }) {
         </View>
       </View>
 
-      <AppButton title="Save vehicle" onPress={handleSubmit(onSubmit)} loading={isSubmitting} />
+      <AppButton
+        title={isEdit ? 'Save changes' : 'Save vehicle'}
+        onPress={handleSubmit(onSubmit)}
+        loading={isSubmitting}
+      />
     </FormScreen>
   );
 }

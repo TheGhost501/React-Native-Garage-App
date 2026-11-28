@@ -8,6 +8,7 @@ import {
   query,
   serverTimestamp,
   updateDoc,
+  writeBatch,
 } from 'firebase/firestore';
 
 import { db } from '../config/firebase';
@@ -64,4 +65,15 @@ export async function createVehicle(uid, data) {
 // PUT: only the fields passed in change; updatedAt is always refreshed.
 export async function updateVehicle(uid, id, data) {
   await updateDoc(vehicleDoc(uid, id), { ...data, updatedAt: serverTimestamp() });
+}
+
+// DELETE: Firestore doesn't delete subcollections with their parent, so the
+// records go in the same batch. All or nothing: no orphaned records.
+// (A batch allows 500 operations; one car's history stays far below that.)
+export async function deleteVehicle(uid, id) {
+  const recordsSnap = await getDocs(collection(vehicleDoc(uid, id), 'records'));
+  const batch = writeBatch(db);
+  recordsSnap.forEach((r) => batch.delete(r.ref));
+  batch.delete(vehicleDoc(uid, id));
+  await batch.commit();
 }
